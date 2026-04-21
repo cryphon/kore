@@ -1,4 +1,7 @@
+#include "uart.h"
+
 void kernel_main(void)
 {
-    while(1);
+    uart_puts("Hello from kernel\n");
+    while(1) { }
 }
