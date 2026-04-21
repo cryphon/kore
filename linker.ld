@@ -6,25 +6,28 @@ MEMORY {
 }
 
 SECTIONS {
-    . = 0x80000000;
+    . = 0x80200000;
 
     .text : {
         *(.text)
     } > RAM
 
     .data : {
+        __global_pointer$ = . + 0x800;
         *(.data)
     } > RAM
 
     .bss : {
+        __bbs_start = .;
         *(.bss)
         *(COMMON)
+        __bbs_end = .;
     } > RAM
 
     . = ALIGN(16);
 
     /* Reserve 16 KiB for the stack */
-    _stack_bottom = .;
+    __stack_bottom = .;
     . += 0x4000;
-    _stack_top = .;         /* stack grows DOWN from here */
+    __stack_top = .;         /* stack grows DOWN from here */
 }
