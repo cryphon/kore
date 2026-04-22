@@ -1,12 +1,12 @@
 /* linker.ld - Memory layout for RISC-V OS */
 
 MEMORY {
-  /* QEMU virt board RAM: 128MB starting at 0x80000000 */
-  RAM : ORIGIN = 0x80200000, LENGTH = 128M
+  /* QEMU virt board RAM: 128MB starting at 0x80000000*/
+  RAM : ORIGIN = 0x80000000, LENGTH = 128M
 }
 
 SECTIONS {
-    . = 0x80200000;
+    . = 0x80000000;
 
     .text : {
         *(.text)
@@ -18,10 +18,10 @@ SECTIONS {
     } > RAM
 
     .bss : {
-        __bbs_start = .;
+        __bss_start = .;
         *(.bss)
         *(COMMON)
-        __bbs_end = .;
+        __bss_end = .;
     } > RAM
 
     . = ALIGN(16);
