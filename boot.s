@@ -9,20 +9,23 @@
 .globl _start
 
 _start:
-    # ========================================
-    # Stack Setup
-    # ========================================
-    # Load address of _stack_top into sp (stack pointer)
-    # _stack_top is defined in linker script
+    # Stack
+    la sp, __stack_top
     
-    lui sp, %hi(_stack_top)
-    addi sp, sp, %lo(_stack_top)
+    # global pointer
+    la gp, __global_pointer$ 
     
-    # ========================================
-    # Infinite loop (for now)
-    # ========================================
-    # Just spin here. No interrupts, no traps yet.
-    
-loop:
-    jal x0, loop
+    # Zero bbs
+    la t0, __bbs_start
+    la t1, __bbs_end
+bbs_loop:
+    beq t0, t1, bbs_done # if t= == t1 we're done
+    sw zero, 0(t0) # store 0 at address t0
+    addi t0, t0, 4 # advance 4 bytes
+bbs_done:
+    call kernel_main
+
+hang:
+    j hang
+
 

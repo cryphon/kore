@@ -2,19 +2,20 @@
 #
 # Toolchain (Arch Linux uses riscv64-elf*)
 TOOLCHAIN = riscv64-elf
-CC = $(TOOLCHAIN)-cc
+CC = $(TOOLCHAIN)-gcc
 AS = $(TOOLCHAIN)-as
 LD = $(TOOLCHAIN)-ld
 OBJDUMP = $(TOOLCHAIN)-objdump
 
 # Compiler flags
-CFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -fno-builtin -O0 -g
+CFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g
 ASFLAGS = -march=rv32i -mabi=ilp32
 LDFLAGS = -m elf32lriscv -T linker.ld
 
-# Source files
-SOURCES = boot.s
-OBJECTS = boot.o
+OBJECTS = \
+		boot.o \
+		kernel/kernel.o \
+		kernel/uart.o
 
 # Output
 KERNEL = kernel.elf
@@ -24,6 +25,7 @@ KERNEL = kernel.elf
 
 all: $(KERNEL)
 
+# Rules
 $(KERNEL): $(OBJECTS)
 	$(LD) $(LDFLAGS) $^ -o $@
 	@echo "✓ Linked: $@"
@@ -31,6 +33,10 @@ $(KERNEL): $(OBJECTS)
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@
 	@echo "✓ Assembled: $<"
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	@echo "✓ Compiled: $<"
 
 disasm: $(KERNEL)
 	$(OBJDUMP) -d $(KERNEL) | head -50
