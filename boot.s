@@ -1,31 +1,27 @@
-# ============================================================
-# boot.s - M-mode boot code
-# ============================================================
-
-# boot.s - RISC-V M-mode boot code
-# CPU starts here at 0x80000000
-
+# boot.s
+# RISC-V M-mode boot code. CPU starts here at 0x80000000.
+ 
+# --- Text Section ----------------------------------------------------------
+ 
 .section .text
 .globl _start
-
 _start:
+    # global pointer
+    la gp, __global_pointer$
     # Stack
     la sp, __stack_top
-    
-    # global pointer
-    la gp, __global_pointer$ 
-    
-    # Zero bbs
-    la t0, __bbs_start
-    la t1, __bbs_end
-bbs_loop:
-    beq t0, t1, bbs_done # if t= == t1 we're done
-    sw zero, 0(t0) # store 0 at address t0
-    addi t0, t0, 4 # advance 4 bytes
-bbs_done:
-    call kernel_main
-
+    # Zero BSS
+    la t0, __bss_start
+    la t1, __bss_end
+bss_loop:
+    beq t0, t1, bss_done
+    sw zero, 0(t0)
+    addi t0, t0, 4
+    j bss_loop
+bss_done:
+    # Set up mscratch with kernel stack for trap handler
+    la t0, __stack_top
+    csrw mscratch, t0
+    call kernel_main   # stay in M-mode, call directly
 hang:
     j hang
-
-

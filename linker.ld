@@ -1,31 +1,32 @@
-/* linker.ld - Memory layout for RISC-V OS */
+/* linker.ld
+ * Memory layout for RISC-V OS on QEMU virt board.
+ */
+
+/* --- Memory Regions ------------------------------------------------------ */
 
 MEMORY {
-  /* QEMU virt board RAM: 128MB starting at 0x80000000 */
-  RAM : ORIGIN = 0x80200000, LENGTH = 128M
+    /* QEMU virt board RAM: 128MB starting at 0x80000000 */
+    RAM : ORIGIN = 0x80000000, LENGTH = 128M
 }
 
-SECTIONS {
-    . = 0x80200000;
+/* --- Sections ------------------------------------------------------------ */
 
+SECTIONS {
+    . = 0x80000000;
     .text : {
         *(.text)
     } > RAM
-
     .data : {
         __global_pointer$ = . + 0x800;
         *(.data)
     } > RAM
-
     .bss : {
-        __bbs_start = .;
+        __bss_start = .;
         *(.bss)
         *(COMMON)
-        __bbs_end = .;
+        __bss_end = .;
     } > RAM
-
     . = ALIGN(16);
-
     /* Reserve 16 KiB for the stack */
     __stack_bottom = .;
     . += 0x4000;
