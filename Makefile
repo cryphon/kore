@@ -46,5 +46,11 @@ debug: $(KERNEL)
 	qemu-system-riscv32 -M virt -bios none -kernel $(KERNEL) \
 		-gdb tcp::1234 -S -nographic &
 	riscv64-elf-gdb $(KERNEL) -ex "target remote :1234"
+new:
+	@if [ -z "$(TYPE)" ] || [ -z "$(NAME)" ]; then \
+		echo "Usage: make new TYPE=<c|h|s|ld> NAME=<filename> [LOC=<directory>]"; \
+		exit 1; \
+	fi
+	@./tools/newfile.sh $(TYPE) $(NAME) $(LOC)
 clean:
 	rm -f $(OBJECTS) $(KERNEL)

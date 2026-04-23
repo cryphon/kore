@@ -1,5 +1,5 @@
 /*
- * filename.c
+ * template.c
  * Description of this file.
  */
 

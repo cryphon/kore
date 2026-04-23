@@ -1,4 +1,4 @@
-# filename.s
+# template.s
 # Description of this file.
 
 # --- Macros / Constants ----------------------------------------------------
