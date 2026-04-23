@@ -1,4 +1,4 @@
-/* filename.ld
+/* template.ld
  * Description of this file.
  */
 

@@ -1,0 +1,11 @@
+make new TYPE=c NAME=uart2 LOC=kernel
+# → creates kernel/uart2.c
+
+make new TYPE=h NAME=uart2 LOC=kernel
+# → creates kernel/uart2.h with #ifndef UART2_H guard
+
+make new TYPE=s NAME=vectors LOC=kernel
+# → creates kernel/vectors.s
+
+make new TYPE=c NAME=main
+# → creates ./main.c (no LOC = project root)

@@ -1,10 +1,10 @@
 /*
- * filename.h
+ * template.h
  * Description of this file.
  */
 
-#ifndef FILENAME_H
-#define FILENAME_H
+#ifndef TEMPLATE_H
+#define TEMPLATE_H
 
 /* --- Includes ------------------------------------------------------------ */
 
@@ -14,4 +14,4 @@
 
 /* --- Public Function Prototypes ------------------------------------------ */
 
-#endif /* FILENAME_H */
+#endif /* TEMPLATE_H */
