@@ -17,9 +17,11 @@
 
 /* --- Private Function Prototypes ----------------------------------------- */
 
-void uart_print_hex(uint32_t val) {
+void uart_print_hex(uint32_t val) 
+{
     uart_puts("0x");
-    for (int i = 7; i >= 0; i--) {
+    for (int i = 7; i >= 0; i--) 
+    {
         uint8_t nibble = (val >> (i * 4)) & 0xF;
         char c = nibble < 10 ? '0' + nibble : 'a' + (nibble - 10);
         uart_putc(c);
