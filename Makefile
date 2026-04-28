@@ -8,12 +8,14 @@ LD = $(TOOLCHAIN)-ld
 OBJDUMP = $(TOOLCHAIN)-objdump
 
 # Compiler flags
-CFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g
+CFLAGS = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g
 ASFLAGS = -march=rv32i_zicsr -mabi=ilp32
 LDFLAGS = -m elf32lriscv -T linker.ld
 
 OBJECTS = \
 		boot.o \
+		kernel/trap.o \
+		kernel/trap_handler.o \
 		kernel/kernel.o \
 		kernel/uart.o \
 

@@ -1,5 +1,5 @@
 /*
- * trap.h
+ * trap_handler.h
  * TrapFrame struct layout for saving all RISC-V registers on trap entry.
  */
 
@@ -9,6 +9,7 @@
 /* --- Includes ------------------------------------------------------------ */
 
 #include "stdint.h"
+#include "uart.h"
 
 /* --- Types / Structs ----------------------------------------------------- */
 
@@ -50,4 +51,5 @@ typedef struct
 
 /* --- Public Function Prototypes ------------------------------------------ */
 
+void trap_handler(void);
 #endif /* TRAP_H */
