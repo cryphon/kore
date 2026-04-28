@@ -6,11 +6,12 @@
 /* --- Includes ------------------------------------------------------------ */
 
 #include "uart.h"
+#include "log.h"
 
 /* --- Public Functions ---------------------------------------------------- */
 
 void kernel_main(void)
 {
-    uart_puts("Hello from kernel\n");
+    log_info("Hello from kernel\n");
     while(1) { }
 }
