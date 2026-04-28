@@ -12,6 +12,10 @@ CFLAGS = -march=rv32i -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g
 ASFLAGS = -march=rv32i_zicsr -mabi=ilp32
 LDFLAGS = -m elf32lriscv -T linker.ld
 
+# Logging level
+CFLAGS += -DLOG_LEVEL=2
+
+
 OBJECTS = \
 		boot.o \
 		kernel/kernel.o \
