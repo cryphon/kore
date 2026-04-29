@@ -51,6 +51,7 @@ void trap_handler(void)
             break;
         case 2:
             uart_puts("Trap: illegal instruction\n");
+            write_csr(mepc, read_csr(mepc) + 4); // skip faulting instruction
             break;
         case 5:
             uart_puts("Trap: load access fault\n");
