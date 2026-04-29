@@ -26,6 +26,19 @@ bss_done:
     # Store kernel stack address in mscratch for use by trap_entry on trap
     la t0, __stack_top
     csrw mscratch, t0
-    call kernel_main   # stay in M-mode, call directly
+
+    # Configure PMP - allow S-Mode to access all memory
+    li t0, 0x1f
+    csrw pmpcfg0, t0
+    li t0, 0x3fffffff
+    csrw pmpaddr0, t0
+
+    # Set MPP=01 (S-Mode), set mepc to kernel_main, mret
+    li t0, (1 << 11)
+    csrw mstatus, t0
+    la t0, kernel_main
+    csrw mepc, t0
+    mret
+
 hang:
     j hang
