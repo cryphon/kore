@@ -19,11 +19,11 @@ bss_loop:
     addi t0, t0, 4
     j bss_loop
 bss_done:
-    # Point mtvec to trap_entry so traps are handled
-    la t0, trap_entry
+    # Point mtvec to mtrap_entry so traps are handled
+    la t0, mtrap_entry
     csrw mtvec, t0
 
-    # Store kernel stack address in mscratch for use by trap_entry on trap
+    # Store kernel stack address in mscratch for use by mtrap_entry on trap
     la t0, __stack_top
     csrw mscratch, t0
 

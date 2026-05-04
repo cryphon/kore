@@ -30,7 +30,7 @@ void uart_print_hex(uint32_t val)
     }
 }
 
-void trap_handler(void)
+void mtrap_handler(void)
 {
     uint32_t cause = read_csr(mcause);
     uint32_t epc   = read_csr(mepc);
@@ -61,5 +61,38 @@ void trap_handler(void)
             break;
     }
 }
+
+void strap_handler(TrapFrame* frame)
+{
+    uint32_t cause = read_csr(scause);
+    uint32_t epc   = read_csr(sepc);
+    
+    uart_puts("Trap! cause=");
+    uart_print_hex(cause);
+    uart_puts(" mepc=");
+    uart_print_hex(epc);
+    uart_puts("\n");
+
+    switch(cause)
+    {
+        case 8:         // Environment call from U-Mode
+        case 9:         // Environment call from S-Mode
+        case 11:        // Environment call from M-Mode
+            uart_puts("Trap: ecall\n");
+            write_csr(sepc,  read_csr(sepc) + 4); // only advance for ecall
+            break;
+        case 2:
+            uart_puts("Trap: illegal instruction\n");
+            write_csr(sepc, read_csr(sepc) + 4); // skip faulting instruction
+            break;
+        case 5:
+            uart_puts("Trap: load access fault\n");
+            break;
+        default:
+            uart_puts("Trap: Unknown\n");
+            break;
+    }
+}
+
 
 /* --- Private Functions --------------------------------------------------- */

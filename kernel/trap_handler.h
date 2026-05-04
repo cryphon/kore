@@ -51,5 +51,6 @@ typedef struct
 
 /* --- Public Function Prototypes ------------------------------------------ */
 
-void trap_handler(void);
+void mtrap_handler(void);
+void strap_handler(TrapFrame* frame);
 #endif /* TRAP_H */
