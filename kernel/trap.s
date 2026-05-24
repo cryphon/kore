@@ -12,12 +12,10 @@
 
 mtrap_entry:
     # 1. swap sp with mscratch to get kernel stack
-    # 2. allocate 128 bytes on the stack (addi sp, sp, -128)
-    # 3. sw every register to its lot
-    # offset for t0 (x1) is 1x4 = 4 so:
-    #   sw t0, 4(sp)
+    # 2. allocate 136 bytes on the stack (32 regs + sepc + sstatus)
+    # 3. sw every register to its slot
     csrrw sp, mscratch, sp      # swap: sp=kernel stack, mscratch=original sp
-    addi sp, sp, -128           # allocate trap frame
+    addi sp, sp, -136           # allocate trap frame (32*4 + 2*4 = 136 bytes)
     sw zero, 0(sp)              # x0 - always zero
     sw x1, 4(sp)                # ra
     # x2 (sp) needs special handling - stored below
@@ -90,7 +88,7 @@ mtrap_entry:
 
     # Restore original sp
     lw x2,  8(sp)
-    addi sp, sp, 128       # deallocate trap frame
+    addi sp, sp, 136       # deallocate trap frame (136 bytes)
     csrrw sp, mscratch, sp # restore: sp=original sp, mscratch=kernel stack
     mret                   # return to mepc, restore privilege
 
@@ -103,7 +101,7 @@ strap_entry:
     csrrw sp, sscratch, sp      # sp = kernel stack
                                 # sscratch = interrupted sp (saved for later)
 
-    addi sp, sp, -128           # allocate 32 * 4 = 128 bytes
+    addi sp, sp, -136           # allocate trap frame (32*4 + 2*4 = 136 bytes)
     # x0  skipped (always zero, nothing to save)
     sw   x1,   4(sp)            # ra
     # x2 (sp) saved below via sscratch
@@ -136,6 +134,12 @@ strap_entry:
     sw   x29, 116(sp)           # t4
     sw   x30, 120(sp)           # t5
     sw   x31, 124(sp)           # t6
+
+    # Save sepc and sstatus into frame
+    csrr t0, sepc
+    sw t0, 128(sp)              # frame->sepc at offset 128
+    csrr t0, sstatus
+    sw t0, 132(sp)              # frame->sstatus at offset 132
 
     # save original sp (currently in sscratch)
     csrr t0, sscratch
@@ -181,10 +185,14 @@ strap_entry:
     lw   x30, 120(sp)
     lw   x31, 124(sp)
 
-    # Restore sp last
-    addi sp, sp, 128            # deallocate trap frame
+    # Restore sepc and sstatus from frame (WHILE sp still points to frame)
+    lw t0, 128(sp)
+    csrw sepc, t0
+    lw t0, 132(sp)
+    csrw sstatus, t0
+
+    # NOW deallocate and restore sp
+    addi sp, sp, 136            # deallocate trap frame (136 bytes)
     csrrw sp, sscratch, sp      # restore original sp; sscratch = kernel stack again
 
     sret                        # return to sepc, restore privilege
-
-
