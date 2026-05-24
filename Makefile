@@ -22,6 +22,7 @@ OBJECTS = \
 		kernel/trap_handler.o \
 		kernel/kernel.o \
 		kernel/uart.o \
+		kernel/proc.o \
 
 # Output
 KERNEL = kernel.elf

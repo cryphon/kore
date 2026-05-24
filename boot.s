@@ -36,13 +36,21 @@ bss_done:
     csrw medeleg, t0
     csrw mideleg, t0
 
-
-
     # Configure PMP - allow S-Mode to access all memory
     li t0, 0x1f
     csrw pmpcfg0, t0
     li t0, 0x3fffffff
     csrw pmpaddr0, t0
+
+    # Allocate and initialize first process stack
+    la t0, __process_stack_top
+    csrw sscratch, t0
+
+    # Initialize proc struct
+    la t1, init_task
+    li t2, 1 # PID
+    sw t2, 0(t1) # Store PID at offset 0
+    sw t0, 4(t1) # Store stack ptr at offset 4
 
     # Set MPP=01 (S-Mode), set mepc to kernel_main, mret
     li t0, (1 << 11)

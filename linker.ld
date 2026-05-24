@@ -31,4 +31,9 @@ SECTIONS {
     __stack_bottom = .;
     . += 0x4000;
     __stack_top = .;         /* stack grows DOWN from here */
+
+    /* Process stacks */
+    __process_stack_start = .;
+    . += 0x1000; /* Direct position counter increment */
+    __process_stack_top = .;
 }
