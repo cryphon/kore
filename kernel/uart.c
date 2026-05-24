@@ -36,4 +36,14 @@ void uart_puts(const char* s)
     }
 }
 
+void uart_put_hex(uint32_t val)
+{
+    const char* hex = "0123456789abcdef";
+    uart_puts("0x");
+    for (int i = 7; i >= 0; i--)
+    {
+        uart_putc(hex[(val >> (i * 4)) & 0xf]);
+    }
+}
+
 /* --- Private Functions --------------------------------------------------- */
