@@ -1,10 +1,16 @@
 # boot.s
 # RISC-V M-mode boot code. CPU starts here at 0x80000000.
  
-# --- Text Section ----------------------------------------------------------
- 
+# --- Macros / Constants ----------------------------------------------------
+
+# --- Data Section ----------------------------------------------------------
 .section .text
 .globl _start
+.globl switch_to_umode
+
+# --- Text Section ----------------------------------------------------------
+ 
+
 _start:
     # global pointer
     la gp, __global_pointer$
@@ -42,14 +48,11 @@ bss_done:
     li t0, 0x3fffffff
     csrw pmpaddr0, t0
 
-    # Allocate and initialize first process stack
-    la t0, __process_stack_top
-    csrw sscratch, t0
-
-    # Initialize proc struct
+    # Initialize proc struct (WITHOUT overwriting sscratch)
     la t1, init_task
     li t2, 1 # PID
     sw t2, 0(t1) # Store PID at offset 0
+    la t0, __process_stack_top
     sw t0, 4(t1) # Store stack ptr at offset 4
 
     # Set MPP=01 (S-Mode), set mepc to kernel_main, mret
@@ -58,6 +61,20 @@ bss_done:
     la t0, kernel_main
     csrw mepc, t0
     mret
+
+switch_to_umode:
+    # a0 = entry point address for U-Mode code
+    # Set sepc to U-Mode entry point
+    csrw sepc, a0
+
+    # Modify sstatus to set SPP=0 (U-Mode)
+    # Read current sstatus
+    csrr t0, sstatus
+    li t1, ~(1 << 8) # Clear bit 8 (SPP)
+    and t0, t0, t1
+    csrw sstatus, t0
+    sret
+
 
 hang:
     j hang

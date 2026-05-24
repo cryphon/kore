@@ -47,6 +47,8 @@ typedef struct
     uint32_t x29;  /* 116 t4                               */
     uint32_t x30;  /* 120 t5                               */
     uint32_t x31;  /* 124 t6                               */
+    uint32_t sepc; /* 128 supervisor exc prog counter      */
+    uint32_t sstatus; /* 132 supervisor status             */
 } TrapFrame;
 
 /* --- Public Function Prototypes ------------------------------------------ */

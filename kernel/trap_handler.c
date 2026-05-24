@@ -8,6 +8,7 @@
 #include "trap_handler.h"
 #include "uart.h"
 #include "csr.h"
+#include "log.h"
 
 /* --- Macros / Constants -------------------------------------------------- */
 
@@ -76,14 +77,17 @@ void strap_handler(TrapFrame* frame)
     switch(cause)
     {
         case 8:         // Environment call from U-Mode
+            log_info("Trap: ecall from U-mode\n");
+            frame->sepc += 4;
+            break;
         case 9:         // Environment call from S-Mode
         case 11:        // Environment call from M-Mode
             uart_puts("Trap: ecall\n");
-            write_csr(sepc,  read_csr(sepc) + 4); // only advance for ecall
+            frame->sepc += 4;
             break;
         case 2:
             uart_puts("Trap: illegal instruction\n");
-            write_csr(sepc, read_csr(sepc) + 4); // skip faulting instruction
+            frame->sepc += 4;
             break;
         case 5:
             uart_puts("Trap: load access fault\n");

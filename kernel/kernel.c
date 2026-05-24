@@ -11,6 +11,7 @@
 /* --- Public Functions ---------------------------------------------------- */
 extern char __process_stack_start[];
 extern char __process_stack_top[];
+extern void switch_to_umode(uint32_t entry);
 
 
 /* kernel/kernel.c */
@@ -38,9 +39,12 @@ static void test_process_init(void) {
 }
 
 void kernel_main(void) {
-    log_info("Hello from kernel\n");
-    
-    test_process_init();
+    extern char umode_entry[];  /* U-mode code starts here */
+
+    log_info("Hello from kernel\n"); 
+    //test_process_init();
+    /* Jump to U-mode */
+    switch_to_umode((uint32_t)umode_entry);
     
     while(1) { }
 }
