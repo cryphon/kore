@@ -6,9 +6,10 @@ CC = $(TOOLCHAIN)-gcc
 AS = $(TOOLCHAIN)-as
 LD = $(TOOLCHAIN)-ld
 OBJDUMP = $(TOOLCHAIN)-objdump
+CORE_DIR = ./core
 
 # Compiler flags
-CFLAGS = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g -I./kernel
+CFLAGS = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g -I$(CORE_DIR)
 ASFLAGS = -march=rv32i_zicsr -mabi=ilp32
 LDFLAGS = -m elf32lriscv -T linker.ld
 
@@ -19,11 +20,11 @@ CFLAGS += -DLOG_LEVEL=2
 OBJECTS = \
 		boot.o \
 		crt0.o \
-		kernel/trap.o \
-		kernel/trap_handler.o \
-		kernel/kernel.o \
-		kernel/uart.o \
-		kernel/proc.o \
+		$(CORE_DIR)/trap.o \
+		$(CORE_DIR)/trap_handler.o \
+		$(CORE_DIR)/kernel.o \
+		$(CORE_DIR)/uart.o \
+		$(CORE_DIR)/proc.o \
 		bin/shell.o \
 
 # Output

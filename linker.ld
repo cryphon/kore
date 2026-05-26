@@ -16,11 +16,11 @@ SECTIONS {
     /* Kernel code (M-mode and S-mode) */
     .text : {
         boot.o(.text)
-        kernel/trap.o(.text)
-        kernel/trap_handler.o(.text)
-        kernel/kernel.o(.text)
-        kernel/uart.o(.text)
-        kernel/proc.o(.text)
+        core/trap.o(.text)
+        core/trap_handler.o(.text)
+        core/kernel.o(.text)
+        core/uart.o(.text)
+        core/proc.o(.text)
     } > RAM
     .data : {
         __global_pointer$ = . + 0x800;
