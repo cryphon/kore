@@ -15,7 +15,7 @@ mtrap_entry:
     # 2. allocate 136 bytes on the stack (32 regs + sepc + sstatus)
     # 3. sw every register to its slot
     csrrw sp, mscratch, sp      # swap: sp=kernel stack, mscratch=original sp
-    addi sp, sp, -136           # allocate trap frame (32*4 + 2*4 = 136 bytes)
+    addi sp, sp, -136           # allocate trap frame
     sw zero, 0(sp)              # x0 - always zero
     sw x1, 4(sp)                # ra
     # x2 (sp) needs special handling - stored below
@@ -101,7 +101,7 @@ strap_entry:
     csrrw sp, sscratch, sp      # sp = kernel stack
                                 # sscratch = interrupted sp (saved for later)
 
-    addi sp, sp, -136           # allocate trap frame (32*4 + 2*4 = 136 bytes)
+    addi sp, sp, -140           # allocate trap frame 
     # x0  skipped (always zero, nothing to save)
     sw   x1,   4(sp)            # ra
     # x2 (sp) saved below via sscratch
@@ -140,6 +140,10 @@ strap_entry:
     sw t0, 128(sp)              # frame->sepc at offset 128
     csrr t0, sstatus
     sw t0, 132(sp)              # frame->sstatus at offset 132
+
+    # Save scause into frame
+    csrr t0, scause
+    sw t0, 136(sp)              # frame->scause at offset 136
 
     # save original sp (currently in sscratch)
     csrr t0, sscratch
@@ -192,7 +196,7 @@ strap_entry:
     csrw sstatus, t0
 
     # NOW deallocate and restore sp
-    addi sp, sp, 136            # deallocate trap frame (136 bytes)
+    addi sp, sp, 140            # deallocate trap frame
     csrrw sp, sscratch, sp      # restore original sp; sscratch = kernel stack again
 
     sret                        # return to sepc, restore privilege

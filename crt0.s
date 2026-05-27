@@ -29,7 +29,7 @@ umode_entry:
     # For now, U-mode programs should avoid ecall and instead just return
     # from main() or hang gracefully.
     
-    j umode_entry  # Hang if main returns
+    j exit
 
 exit:
     # a0 = exit code

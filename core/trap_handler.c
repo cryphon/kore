@@ -65,8 +65,8 @@ void mtrap_handler(void)
 
 void strap_handler(TrapFrame* frame)
 {
-    uint32_t cause = read_csr(scause);
-    uint32_t epc   = read_csr(sepc);
+    uint32_t epc   = frame->sepc;
+    uint32_t cause = frame->scause;
     
     uart_puts("Trap! cause=");
     uart_print_hex(cause);
@@ -77,7 +77,10 @@ void strap_handler(TrapFrame* frame)
     switch(cause)
     {
         case 8:         // Environment call from U-Mode
-            log_info("Trap: ecall from U-mode\n");
+            // Syscall number is in a7 (x17). 93 = SYS_EXIT
+            if (frame->x17 == 93) {
+                while(1);  // Halt U-mode process (TODO: implement proper SYS_EXIT)
+}            log_info("Trap: ecall from U-mode\n");
             frame->sepc += 4;
             break;
         case 9:         // Environment call from S-Mode
