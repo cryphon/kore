@@ -25,6 +25,7 @@ OBJECTS = \
 		$(CORE_DIR)/kernel.o \
 		$(CORE_DIR)/uart.o \
 		$(CORE_DIR)/proc.o \
+		$(CORE_DIR)/syscall.o \
 		bin/shell.o \
 
 # Output

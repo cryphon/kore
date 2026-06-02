@@ -78,10 +78,6 @@ void strap_handler(TrapFrame* frame)
     {
         case 8:         // Environment call from U-Mode
             // Syscall number is in a7 (x17). 93 = SYS_EXIT
-            if (frame->x17 == 93) {
-                log_info("Trap: SYS_EXIT called\n");
-                while(1);  // Halt U-mode process (TODO: implement proper SYS_EXIT)
-            }
             log_info("Trap: ecall from U-mode\n");
             frame->sepc += 4;
             break;
