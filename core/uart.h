@@ -11,6 +11,7 @@
 
 void uart_putc(char c);
 void uart_puts(const char *s);
+void uart_printf(const char *fmt, ...);
 void uart_put_hex(uint32_t val);
 
 #endif /* UART_H */
