@@ -5,10 +5,13 @@
 
 /* --- Includes ------------------------------------------------------------ */
 
+#include "log.h"
 #include "trap_handler.h"
+#include "trap_causes.h"
+#include "syscall.h"
+#include "panic.h"
 #include "uart.h"
 #include "csr.h"
-#include "log.h"
 
 /* --- Macros / Constants -------------------------------------------------- */
 
@@ -17,8 +20,6 @@
 /* --- Private Variables --------------------------------------------------- */
 
 /* --- Private Function Prototypes ----------------------------------------- */
-
-/* --- Public Functions ---------------------------------------------------- */
 
 void uart_print_hex(uint32_t val) 
 {
@@ -30,6 +31,68 @@ void uart_print_hex(uint32_t val)
         uart_putc(c);
     }
 }
+
+static void handle_ecall(TrapFrame* frame)
+{
+    uint32_t syscall_id = frame->x17;   // a7
+    uint32_t arg0       = frame->x10;   // a0
+
+    switch(syscall_id)
+    {
+        case SYS_EXIT:
+            log_info("Trap: SYS_EXIT, code=%d\n", arg0);
+            kernel_halt();
+        default:
+            log_warn("TrapL unknown syscall %d\n", syscall_id);
+            frame->x10 = -1; // return error to caller
+            break;
+    }
+    
+    frame->sepc += 4; // advance past ecall - in one place
+}
+
+static void handle_exception(TrapFrame* frame, uint32_t cause)
+{
+    switch(cause)
+    {
+        case EXC_ECALL_UMODE:
+            handle_ecall(frame);
+            break;
+        case EXC_ECALL_SMODE:
+        case EXC_ECALL_MMODE:
+            log_warn("Trap: ecall from S/M-mode (unexpected)\n");
+            frame->sepc += 4;
+            break;
+        case EXC_ILLEGAL_INSTR:
+            log_error("Trap: illegal instruction at 0x%x\n", frame->sepc);
+            kernel_panic("illegal instrucion");
+
+        case EXC_LOAD_ACCESS_FAULT:
+            log_error("Trap: load access fault at 0x%x\n", frame->sepc);
+            kernel_panic("load access fault");
+
+        default:
+            log_error("TrapL unhandled exception cause=%d\n", cause);
+            kernel_panic("unhandled exception");
+    }
+}
+
+static void handle_interrupt(TrapFrame* frame, uint32_t cause)
+{
+    switch (cause)
+    {
+        case INT_SUPERVISOR_TIMER:
+            // schedule() will go here
+            log_info("Trap: timer interrupt\n");
+            break;
+
+        default:
+            log_warn("Trap: unhandled interrupt cause=%d\n", cause);
+            break;
+    }
+}
+
+/* --- Public Functions ---------------------------------------------------- */
 
 void mtrap_handler(void)
 {
@@ -65,37 +128,16 @@ void mtrap_handler(void)
 
 void strap_handler(TrapFrame* frame)
 {
-    uint32_t epc   = frame->sepc;
     uint32_t cause = frame->scause;
-    
-    uart_puts("Trap! cause=");
-    uart_print_hex(cause);
-    uart_puts(" mepc=");
-    uart_print_hex(epc);
-    uart_puts("\n");
+    log_debug("Trap! cause=%x sepc=%x\n", cause, frame->sepc);
 
-    switch(cause)
+    if (cause & CAUSE_INTERRUPT_BIT)
     {
-        case 8:         // Environment call from U-Mode
-            // Syscall number is in a7 (x17). 93 = SYS_EXIT
-            log_info("Trap: ecall from U-mode\n");
-            frame->sepc += 4;
-            break;
-        case 9:         // Environment call from S-Mode
-        case 11:        // Environment call from M-Mode
-            uart_puts("Trap: ecall\n");
-            frame->sepc += 4;
-            break;
-        case 2:
-            uart_puts("Trap: illegal instruction\n");
-            frame->sepc += 4;
-            break;
-        case 5:
-            uart_puts("Trap: load access fault\n");
-            break;
-        default:
-            uart_puts("Trap: Unknown\n");
-            break;
+        handle_interrupt(frame, cause & ~CAUSE_INTERRUPT_BIT);
+    }
+    else
+    {
+        handle_exception(frame, cause);
     }
 }
 
