@@ -71,8 +71,11 @@ switch_to_umode:
     # Read current sstatus
     csrr t0, sstatus
     li t1, ~(1 << 8) # Clear bit 8 (SPP)
+    ori t0, t0, (1 << 5)
     and t0, t0, t1
     csrw sstatus, t0
+    la t0, init_task
+    lw sp, 4(t0) # Load stack_ptr from init_task
     sret
 
 
