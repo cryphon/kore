@@ -6,9 +6,9 @@
 /* --- Includes ------------------------------------------------------------ */
 
 #include "log.h"
+#include "syscall_nr.h"
 #include "trap_handler.h"
 #include "trap_causes.h"
-#include "syscall.h"
 #include "panic.h"
 #include "uart.h"
 #include "csr.h"
@@ -42,13 +42,18 @@ static void handle_ecall(TrapFrame* frame)
         case SYS_EXIT:
             log_info("Trap: SYS_EXIT, code=%d\n", arg0);
             kernel_halt();
+            break;
+        case SYS_WRITE:
+            log_info("Trap: SYS_WRITE, code=%d\n", arg0);
+            break;
         default:
-            log_warn("TrapL unknown syscall %d\n", syscall_id);
+            log_warn("Trap: unknown syscall %d\n", syscall_id);
             frame->x10 = -1; // return error to caller
             break;
     }
     
     frame->sepc += 4; // advance past ecall - in one place
+    log_debug("sepc advanced to %x\n", frame->sepc);
 }
 
 static void handle_exception(TrapFrame* frame, uint32_t cause)
@@ -72,7 +77,7 @@ static void handle_exception(TrapFrame* frame, uint32_t cause)
             kernel_panic("load access fault");
 
         default:
-            log_error("TrapL unhandled exception cause=%d\n", cause);
+            log_error("Trap: unhandled exception cause=%d\n", cause);
             kernel_panic("unhandled exception");
     }
 }

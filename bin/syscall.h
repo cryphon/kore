@@ -10,12 +10,11 @@
 
 /* --- Macros / Constants -------------------------------------------------- */
 
-#define SYS_EXIT 93
-
 /* --- Types / Structs ----------------------------------------------------- */
 
 /* --- Public Function Prototypes ------------------------------------------ */
 
-static inline long syscall(long id, long a0, long a1, long a2);
+long syscall(long id, long a0, long a1, long a2);
+long write(int fd, char* buf, int len);
 
 #endif /* SYSCALL_H */

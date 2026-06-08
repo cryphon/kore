@@ -5,6 +5,7 @@
 
 /* --- Includes ------------------------------------------------------------ */
 #include "syscall.h"
+#include "syscall_nr.h"
 
 /* --- Macros / Constants -------------------------------------------------- */
 
@@ -15,7 +16,8 @@
 /* --- Private Function Prototypes ----------------------------------------- */
 
 /* --- Public Functions ---------------------------------------------------- */
-static inline long syscall(long id, long a0, long a1, long a2) {
+long syscall(long id, long a0, long a1, long a2) 
+{
     register long _id  asm("a7") = id;
     register long _a0  asm("a0") = a0;
     register long _a1  asm("a1") = a1;
@@ -23,5 +25,13 @@ static inline long syscall(long id, long a0, long a1, long a2) {
     asm volatile("ecall" : "+r"(_a0) : "r"(_id), "r"(_a1), "r"(_a2) : "memory");
     return _a0;
 }
+
+long write(int fd, char* buf, int len)
+{
+    long result = {0};
+    result = syscall(SYS_WRITE, STDOUT, (long)buf, len);
+    return result;
+}
+    
 
 /* --- Private Functions --------------------------------------------------- */

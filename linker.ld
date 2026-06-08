@@ -21,6 +21,7 @@ SECTIONS {
         core/kernel.o(.text)
         core/uart.o(.text)
         core/proc.o(.text)
+        core/panic.o(.text)
     } > RAM
     .data : {
         __global_pointer$ = . + 0x800;
@@ -54,8 +55,8 @@ SECTIONS {
     .utext : {
         crt0.o(.text)
         bin/shell.o(.text)
-    } > RAM
-    
+        bin/syscall.o(.text)
+    } > RAM    
     /* User-mode data */
     .udata : {
         crt0.o(.data)

@@ -26,7 +26,7 @@ OBJECTS = \
 		$(CORE_DIR)/uart.o \
 		$(CORE_DIR)/proc.o \
 		$(CORE_DIR)/panic.o \
-		$(CORE_DIR)/syscall.o \
+		bin/syscall.o \
 		bin/shell.o \
 
 # Output
