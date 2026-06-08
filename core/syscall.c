@@ -24,8 +24,4 @@ static inline long syscall(long id, long a0, long a1, long a2) {
     return _a0;
 }
 
-__attribute__((noreturn)) static inline void sys_exit(int code) {
-    syscall(SYS_EXIT, code, 0, 0);
-    __builtin_unreachable();
-}
 /* --- Private Functions --------------------------------------------------- */
