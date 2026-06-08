@@ -4,7 +4,8 @@
  */
 
 /* --- Includes ------------------------------------------------------------ */
-#include "log.h"
+#include "syscall.h"
+#include "libc.h"
 /* --- Macros / Constants -------------------------------------------------- */
 
 /* --- Types / Structs ----------------------------------------------------- */
@@ -17,7 +18,7 @@
 
 int main(void)
 {
-    log_info("Hello from shell\n");
+    long result = write(STDOUT, "Hello world", 11);
     return 0;
 }
 
