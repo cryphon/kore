@@ -29,7 +29,7 @@ long syscall(long id, long a0, long a1, long a2)
 long write(int fd, char* buf, int len)
 {
     long result = {0};
-    result = syscall(SYS_WRITE, STDOUT, (long)buf, len);
+    result = syscall(SYS_WRITE, fd, (long)buf, len);
     return result;
 }
     

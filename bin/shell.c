@@ -18,7 +18,7 @@
 
 int main(void)
 {
-    long result = write(STDOUT, "Hello world", 11);
+    int result = write(STDOUT, "Hello world\n", 11);
     return 0;
 }
 
