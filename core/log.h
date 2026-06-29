@@ -12,7 +12,9 @@
 
 /* --- Macros / Constants -------------------------------------------------- */
 
+#ifndef LOG_LEVEL
 #define LOG_LEVEL LOG_DEBUG
+#endif
 #define log_error(fmt, ...) do { if (LOG_LEVEL >= LOG_ERROR) { uart_puts("[ERROR] "); uart_printf(fmt, ##__VA_ARGS__); uart_puts("\n"); } } while(0)
 #define log_warn(fmt, ...)  do { if (LOG_LEVEL >= LOG_WARN)  { uart_puts("[WARN]  "); uart_printf(fmt, ##__VA_ARGS__); uart_puts("\n"); } } while(0)
 #define log_info(fmt, ...)  do { if (LOG_LEVEL >= LOG_INFO)  { uart_puts("[INFO]  "); uart_printf(fmt, ##__VA_ARGS__); uart_puts("\n"); } } while(0)

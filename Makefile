@@ -13,8 +13,8 @@ CFLAGS = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O
 ASFLAGS = -march=rv32i_zicsr -mabi=ilp32
 LDFLAGS = -m elf32lriscv -T linker.ld
 
-# Logging level
-CFLAGS += -DLOG_LEVEL=2
+LOG_LEVEL ?= 3
+CFLAGS += -DLOG_LEVEL=$(LOG_LEVEL)
 
 
 OBJECTS = \
