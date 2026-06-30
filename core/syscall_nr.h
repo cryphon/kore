@@ -12,6 +12,7 @@
 #define STDOUT 1
 #define SYS_WRITE 64
 #define SYS_EXIT 93
+#define SYS_YIELD 124
 
 /* --- Types / Structs ----------------------------------------------------- */
 

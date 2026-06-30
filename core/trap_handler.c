@@ -49,6 +49,9 @@ static void handle_ecall(TrapFrame* frame)
             uart_puts(buf);
             log_info("Trap: SYS_WRITE, code=%d\n", arg0);
             break;
+        case SYS_YIELD:
+            // voluntary yield
+            break;
         default:
             log_warn("Trap: unknown syscall %d\n", syscall_id);
             frame->x10 = -1; // return error to caller
