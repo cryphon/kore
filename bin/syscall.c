@@ -26,7 +26,7 @@ long syscall(long id, long a0, long a1, long a2)
     return _a0;
 }
 
-long write(int fd, char* buf, int len)
+long sys_write(int fd, char* buf, int len)
 {
     long result = {0};
     result = syscall(SYS_WRITE, fd, (long)buf, len);
