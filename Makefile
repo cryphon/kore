@@ -5,13 +5,15 @@ TOOLCHAIN = riscv64-elf
 CC = $(TOOLCHAIN)-gcc
 AS = $(TOOLCHAIN)-as
 LD = $(TOOLCHAIN)-ld
+LDSCRIPT_SRC = linker.ld.S
+LDSCRIPT = linker.ld
 OBJDUMP = $(TOOLCHAIN)-objdump
-CORE_DIR = ./core
+CORE_DIR = core
 
 # Compiler flags
 CFLAGS = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g -I$(CORE_DIR)
 ASFLAGS = -march=rv32i_zicsr -mabi=ilp32
-LDFLAGS = -m elf32lriscv -T linker.ld
+LDFLAGS = -m elf32lriscv -T $(LDSCRIPT)
 
 LOG_LEVEL ?= 3
 CFLAGS += -DLOG_LEVEL=$(LOG_LEVEL)
@@ -38,10 +40,12 @@ KERNEL = kernel.elf
 all: $(KERNEL)
 
 # Rules
-$(KERNEL): $(OBJECTS)
-	$(LD) $(LDFLAGS) $^ -o $@
-	@echo "✓ Linked: $@"
+$(LDSCRIPT): $(LDSCRIPT_SRC) $(CORE_DIR)/mem_layout.h
+	$(CC) -E -x assembler-with-cpp -undef -P -I$(CORE_DIR) $< -o $@
 
+$(KERNEL): $(OBJECTS) $(LDSCRIPT)
+	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
+	@echo "✓ Linked: $@"
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@
 	@echo "✓ Assembled: $<"
@@ -65,4 +69,4 @@ new:
 	fi
 	@./tools/newfile.sh $(TYPE) $(NAME) $(LOC)
 clean:
-	rm -f $(OBJECTS) $(KERNEL)
+	rm -f $(OBJECTS) $(KERNEL) $(LDSCRIPT)
