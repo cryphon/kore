@@ -48,13 +48,6 @@ bss_done:
     li t0, 0x3fffffff
     csrw pmpaddr0, t0
 
-    # Initialize proc struct (WITHOUT overwriting sscratch)
-    la t1, init_task
-    li t2, 1 # PID
-    sw t2, 0(t1) # Store PID at offset 0
-    la t0, __process_stack_top
-    sw t0, 4(t1) # Store stack ptr at offset 4
-
     # Set MPP=01 (S-Mode), set mepc to kernel_main, mret
     li t0, (1 << 11)
     csrw mstatus, t0
@@ -74,8 +67,7 @@ switch_to_umode:
     ori t0, t0, (1 << 5)
     and t0, t0, t1
     csrw sstatus, t0
-    la t0, init_task
-    lw sp, 4(t0) # Load stack_ptr from init_task
+    lw sp, 4(a1) # Load stack_ptr from Proc* passed in a1
     sret
 
 

@@ -5,11 +5,11 @@
 
 /* --- Includes ------------------------------------------------------------ */
 #include "proc.h"
-
+#include "mem_layout.h"
 /* --- Macros / Constants -------------------------------------------------- */
 
-/* First process struct, declared here, initialized in boot.s */
-Proc init_task = {0};
+static Proc proc_table[MAX_PROCESSES];
+Proc* tasks[MAX_PROCESSES];
 
 /* --- Types / Structs ----------------------------------------------------- */
 
@@ -21,8 +21,9 @@ Proc init_task = {0};
 
 void proc_init(uint32_t pid, void* stack_addr)
 {
-    init_task.pid = pid;
-    init_task.stack_ptr = stack_addr;
+    tasks[pid]  = &proc_table[pid];
+    tasks[pid]->pid = pid;
+    tasks[pid]->stack_ptr = stack_addr;
 }
 
 /* --- Private Functions --------------------------------------------------- */
