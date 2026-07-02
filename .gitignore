@@ -1,3 +1,7 @@
 *.o
 *.elf
-PROJECT_ROADMAP.md
+compile_commands.json
+kernel.map
+linker.ld
+.cache/
+
