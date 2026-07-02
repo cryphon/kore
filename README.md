@@ -58,13 +58,13 @@ kore/
 │   ├── trap.s          # strap_entry / mtrap_entry (assembly trampoline)
 │   ├── trap.c          # strap_handler / mtrap_handler (C dispatch)
 │   ├── uart.c          # NS16550A UART driver
-│   ├── process.c       # Process struct, stack allocation
+│   ├── proc.c       # Process struct, stack allocation
 │   └── log.h           # Tiered logging (LOG_ERROR → LOG_DEBUG)
 ├── bin/
 │   ├── crt0.s          # U-mode startup: umode_entry, exit ecall
 │   ├── shell.c         # First user process
 │   └── user.h          # U-mode callable declarations
-├── linker.ld           # Memory layout: .text (kernel), .utext (user), stacks
+├── linker.ld.S           # Memory layout: .text (kernel), .utext (user), stacks
 ├── Makefile
 └── docs/
 ```
@@ -77,7 +77,7 @@ kore/
 |---|---|---|
 | Kernel `.text` | `0x80000000` | Boot + kernel code |
 | Kernel stack | after `.bss` | 4 KB, grows down |
-| Process stack | linker symbol | 4 KB, `__process_stack_start` / `__process_stack_top` |
+| process stack | pool-based | based on MAX_PROCESSES |
 | User `.utext` | 4 KB-aligned | `crt0.o` + user process code |
 
 ---
