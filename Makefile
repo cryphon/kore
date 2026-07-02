@@ -7,6 +7,7 @@ AS = $(TOOLCHAIN)-as
 LD = $(TOOLCHAIN)-ld
 LDSCRIPT_SRC = linker.ld.S
 LDSCRIPT = linker.ld
+OBJCOPY = $(TOOLCHAIN)-objcopy
 OBJDUMP = $(TOOLCHAIN)-objdump
 CORE_DIR = core
 
@@ -19,17 +20,28 @@ LOG_LEVEL ?= 3
 CFLAGS += -DLOG_LEVEL=$(LOG_LEVEL)
 
 
-OBJECTS = \
-		boot.o \
-		crt0.o \
-		$(CORE_DIR)/trap.o \
-		$(CORE_DIR)/trap_handler.o \
-		$(CORE_DIR)/kernel.o \
-		$(CORE_DIR)/uart.o \
-		$(CORE_DIR)/proc.o \
-		$(CORE_DIR)/panic.o \
-		bin/syscall.o \
-		bin/shell.o \
+# Kernel-side objects: participate in the link as-is
+CORE_OBJECTS = \
+	boot.o \
+	$(CORE_DIR)/trap.o \
+	$(CORE_DIR)/trap_handler.o \
+	$(CORE_DIR)/kernel.o \
+	$(CORE_DIR)/uart.o \
+	$(CORE_DIR)/proc.o \
+	$(CORE_DIR)/panic.o
+
+# User-mode objects: compiled normally, then have their sections
+# renamed before linking so the linker script can match them with
+# a bare *(.utext)/*(.udata)/*(.urodata) wildcard, no path globs.
+USER_OBJECTS = \
+	crt0.o \
+	bin/syscall.o \
+	bin/shell.o
+
+USER_OBJECTS_RENAMED = $(USER_OBJECTS:.o=.user.o)
+OBJECTS = $(CORE_OBJECTS) $(USER_OBJECTS_RENAMED)
+
+
 
 # Output
 KERNEL = kernel.elf
@@ -45,14 +57,22 @@ $(LDSCRIPT): $(LDSCRIPT_SRC) $(CORE_DIR)/mem_layout.h
 
 $(KERNEL): $(OBJECTS) $(LDSCRIPT)
 	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
-	@echo "✓ Linked: $@"
+
+# Intermediate step: rename sections in the already-compiled object,
+# runs after the normal .o is built, before it reaches the linker.
+%.user.o: %.o
+	$(OBJCOPY) \
+		--rename-section .text=.utext,alloc,load,readonly,contents,code \
+		--rename-section .data=.udata,alloc,load,contents \
+		--rename-section .rodata=.urodata,alloc,load,readonly,contents \
+		$< $@
+	@echo "✓ Renamed sections: $< -> $@"
+
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@
-	@echo "✓ Assembled: $<"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo "✓ Compiled: $<"
 
 disasm: $(KERNEL)
 	$(OBJDUMP) -d $(KERNEL)
@@ -69,4 +89,4 @@ new:
 	fi
 	@./tools/newfile.sh $(TYPE) $(NAME) $(LOC)
 clean:
-	rm -f $(OBJECTS) $(KERNEL) $(LDSCRIPT)
+	rm -f $(CORE_OBJECTS) $(USER_OBJECTS) $(USER_OBJECTS_RENAMED) $(KERNEL) $(LDSCRIPT)
