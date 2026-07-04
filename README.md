@@ -53,18 +53,14 @@ The boot sequence is:
 ```
 kore/
 ├── boot.s              # M-mode entry point, privilege setup, mret to S-mode
-├── kernel/
+├── core/
 │   ├── kernel.c        # kernel_main, S-mode init
-│   ├── trap.s          # strap_entry / mtrap_entry (assembly trampoline)
-│   ├── trap.c          # strap_handler / mtrap_handler (C dispatch)
-│   ├── uart.c          # NS16550A UART driver
-│   ├── proc.c       # Process struct, stack allocation
-│   └── log.h           # Tiered logging (LOG_ERROR → LOG_DEBUG)
+│   ├── ...
 ├── bin/
 │   ├── crt0.s          # U-mode startup: umode_entry, exit ecall
-│   ├── shell.c         # First user process
+│   ├── shell.c         # A user process
 │   └── user.h          # U-mode callable declarations
-├── linker.ld.S           # Memory layout: .text (kernel), .utext (user), stacks
+├── linker.ld.S         # Memory layout: .text (kernel), .utext (user), stacks ; Generated in preprocessing to linker.ld
 ├── Makefile
 └── docs/
 ```
@@ -106,7 +102,6 @@ The `TrapFrame` struct (140 bytes) is allocated on the kernel trap stack at ever
 - [x] **S → U-mode transition** — via `sret` with `sstatus.SPP = 0`
 - [x] **U-mode ecall handling** — `scause = 8` caught, `sepc` advanced, `SYS_EXIT` stub
 - [x] **Process struct** — PID, stack pointer; stack allocated via linker script
-- [x] **Tiered logging** — compile-time `LOG_LEVEL` flag (`LOG_ERROR` through `LOG_DEBUG`)
 
 ---
 
@@ -120,13 +115,14 @@ The `TrapFrame` struct (140 bytes) is allocated on the kernel trap stack at ever
 
 ```bash
 # Build
-make
+make all
 
 # Run in QEMU
-make qemu
+make run
 
-# Debug (open a second terminal after make qemu)
+# Debug
 make debug
+-- requires pkill to properly terminate GDB session
 ```
 
 QEMU is started with `-bios none -machine virt -nographic`, loading the kernel ELF at `0x80000000`.
@@ -139,12 +135,7 @@ Every feature in this project is verified at the hardware level with GDB before 
 
 **Terminal 1** — start QEMU, wait for GDB:
 ```bash
-make qemu   # starts QEMU with -s -S (halts, listens on :1234)
-```
-
-**Terminal 2** — attach GDB:
-```bash
-make debug  # runs gdb-multiarch, connects to :1234, loads symbols
+make debug
 ```
 
 Useful commands:
@@ -162,9 +153,7 @@ Useful commands:
 ## Development Conventions
 
 - **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/) with GitHub issue references
-- **Issues** use a custom template with acceptance criteria, GDB test steps, and expected output
-- **Tests** are embedded in `kernel_main` — explicit, traceable, and tied to specific issues
-- **Comments** are placed *before* the relevant line, never inline after
+- **Issues** use a custom template with acceptance criteria, GDB test steps, and expected output (not really followed though XD)
 
 ---
 
