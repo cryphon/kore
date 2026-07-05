@@ -40,17 +40,18 @@ static void handle_ecall(TrapFrame* frame)
     switch(syscall_id)
     {
         case SYS_EXIT:
-            log_info("Trap: SYS_EXIT, code=%d\n", arg0);
+            log_debug("Trap: SYS_EXIT, code=%d\n", arg0);
             kernel_halt();
             break;
         case SYS_WRITE:
             char* buf = (char*)frame->x11;
             uint32_t len = frame->x12;
             uart_puts(buf);
-            log_info("Trap: SYS_WRITE, code=%d\n", arg0);
+            log_debug("Trap: SYS_WRITE, code=%d\n", arg0);
             break;
         case SYS_YIELD:
             // voluntary yield
+            frame->x10 = 0;
             break;
         default:
             log_warn("Trap: unknown syscall %d\n", syscall_id);
@@ -59,7 +60,6 @@ static void handle_ecall(TrapFrame* frame)
     }
     
     frame->sepc += 4; // advance past ecall - in one place
-    log_debug("sepc advanced to %x\n", frame->sepc);
 }
 
 static void handle_exception(TrapFrame* frame, uint32_t cause)
