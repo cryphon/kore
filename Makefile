@@ -34,9 +34,10 @@ CORE_OBJECTS = \
 # renamed before linking so the linker script can match them with
 # a bare *(.utext)/*(.udata)/*(.urodata) wildcard, no path globs.
 USER_OBJECTS = \
-	crt0.o \
-	bin/syscall.o \
-	bin/shell.o
+	bin/common/crt0.o \
+	bin//common/syscall.o \
+	bin/shell/shell.o \
+	bin/yield_test/yield_test.o
 
 USER_OBJECTS_RENAMED = $(USER_OBJECTS:.o=.user.o)
 OBJECTS = $(CORE_OBJECTS) $(USER_OBJECTS_RENAMED)

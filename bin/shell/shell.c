@@ -4,8 +4,8 @@
  */
 
 /* --- Includes ------------------------------------------------------------ */
-#include "syscall.h"
-#include "libc.h"
+#include "../common/syscall.h"
+#include "../common/libc.h"
 /* --- Macros / Constants -------------------------------------------------- */
 
 /* --- Types / Structs ----------------------------------------------------- */
