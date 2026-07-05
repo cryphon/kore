@@ -69,7 +69,3 @@ switch_to_umode:
     csrw sstatus, t0
     lw sp, 4(a1) # Load stack_ptr from Proc* passed in a1
     sret
-
-
-hang:
-    j hang
