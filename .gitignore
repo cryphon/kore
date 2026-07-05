@@ -1,4 +1,5 @@
 *.o
+*.d
 *.elf
 compile_commands.json
 kernel.map
