@@ -36,7 +36,7 @@ SECTIONS {
 
     .bss : {
         __bss_start = .;
-        *(.bsss)
+        *(.bss)
         *(COMMON)
         __bss_end = .;
     } > RAM
@@ -70,6 +70,8 @@ SECTIONS {
      .udata : {
          *(.udata)
      } > RAM
-
      __umode_end = .;
+
+     . = ALIGN(0x1000);
+     __user_slot_base = .;
 }
