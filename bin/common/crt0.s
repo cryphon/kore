@@ -4,12 +4,12 @@
 # --- Macros / Constants ----------------------------------------------------
 
 # --- Data Section ----------------------------------------------------------
-.globl umode_entry
+.globl _ustart
 .globl exit
 
 # --- Text Section ----------------------------------------------------------
 
-umode_entry:
+_ustart:
     call main
     # a0 holds main's return value — pass it to SYS_EXIT
     j exit

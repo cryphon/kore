@@ -4,6 +4,7 @@
  */
 #include "mem_layout.h"
 
+ENTRY(_start)
 /* --- Memory Regions ------------------------------------------------------ */
 
 MEMORY {

@@ -15,7 +15,7 @@
 // Slot size is independed from process stack size, they are currently
 // the same however slot size constant will; in the future be expected to 
 // both grow statically at first, then become variable
-#define SLOT_SIZE_CONSTANT  0x1000
+#define USER_SLOT_SIZE  0x1000
 
 // This is 1MiB into RAM, enough headroom for kernel for now
 #define USER_SLOT_BASE 0x80100000

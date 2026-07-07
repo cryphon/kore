@@ -17,6 +17,7 @@ typedef struct
 {
     uint32_t pid;
     void* stack_ptr;
+    void* entry_ptr;
 } Proc;
 
 
