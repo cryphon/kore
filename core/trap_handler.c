@@ -52,6 +52,7 @@ static void handle_ecall(TrapFrame* frame)
         case SYS_YIELD:
             // voluntary yield
             frame->x10 = 0;
+            log_debug("Trap: SYS_YIELD, code=%d\n", arg0);
             break;
         default:
             log_warn("Trap: unknown syscall %d\n", syscall_id);
@@ -140,7 +141,7 @@ void mtrap_handler(void)
 void strap_handler(TrapFrame* frame)
 {
     uint32_t cause = frame->scause;
-    log_debug("Trap! cause=%x sepc=%x\n", cause, frame->sepc);
+    log_debug("Trap! cause=%x a7=%x\n", cause, frame->x17);
 
     if (cause & CAUSE_INTERRUPT_BIT)
     {

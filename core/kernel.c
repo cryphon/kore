@@ -26,7 +26,6 @@ void kernel_main(void) {
     proc_init(++pid, (void*)__process_stack_pool_start + (2 * PROCESS_STACK_SIZE), (void*)0x80101000);
     /* Jump to U-mode */
     // switch_to_umode((uint32_t)tasks[0]->entry_ptr, tasks[0]);    
-    log_info("Switching to PROC 2\n");
     switch_to_umode((uint32_t)tasks[1]->entry_ptr, tasks[1]);    
     while(1) { }
 }
