@@ -14,7 +14,7 @@ CORE_DIR = core
 # Compiler flags
 CFLAGS = -march=rv32i_zicsr -mabi=ilp32 -nostdlib -fno-builtin -ffreestanding -O0 -g -I$(CORE_DIR) -Ibin/common
 ASFLAGS = -march=rv32i_zicsr -mabi=ilp32
-LDFLAGS = -m elf32lriscv -T $(LDSCRIPT)
+LDFLAGS = -m elf32lriscv -T $(LDSCRIPT) -Map=kernel.map
 
 # Automatic header dependency tracking: -MMD emits a .d file per 
 # compiled .c, listing every header it actually included; -Mp adds
@@ -61,6 +61,18 @@ DEPS = $(CORE_OBJECTS:.o=.d) bin/common/crt0.d bin/common/syscall.d \
        $(foreach p,$(PROGRAMS),bin/$(p)/$(p).d)
 
 
+define PROGRAM_BLOB_RULE
+bin/$(1)/$(1)_blob.o: bin/$(1)/$(1).bin
+	$$(OBJCOPY) -I binary -O elf32-littleriscv --binary-architecture riscv $$< $$@
+	$$(OBJCOPY) --rename-section .data=.blob_$(1),alloc,load,readonly,contents $$@
+endef
+
+$(foreach p,$(PROGRAMS),$(eval $(call PROGRAM_BLOB_RULE,$(p))))
+
+PROGRAM_BLOBS = $(foreach p,$(PROGRAMS),bin/$(p)/$(p)_blob.o)
+
+
+
 # Output
 KERNEL = kernel.elf
  
@@ -86,9 +98,8 @@ bin/%/linker.ld: bin/%/linker.ld.S $(CORE_DIR)/mem_layout.h
 $(foreach p,$(PROGRAMS),$(eval $(call PROGRAM_RULES,$(p))))
 
 
-$(KERNEL): $(OBJECTS) $(LDSCRIPT)
-	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
- 
+$(KERNEL): $(OBJECTS) $(PROGRAM_BINS) $(PROGRAM_BLOBS) $(LDSCRIPT)
+	$(LD) $(LDFLAGS) $(OBJECTS) $(PROGRAM_BLOBS) -o $@ 
  
 %.o: %.s
 	$(AS) $(ASFLAGS) $< -o $@

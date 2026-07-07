@@ -64,6 +64,13 @@ SECTIONS {
          *(.utext)
      } > RAM
 
+     .user_shell USER_SLOT_BASE + (0*USER_SLOT_SIZE) : {
+         bin/shell/shell_blob.o(.blob_shell)
+     } > RAM
+
+     .user_yield_test USER_SLOT_BASE + (1*USER_SLOT_SIZE) : {
+         bin/yield_test/yield_test_blob.o(.blob_yield_test)
+     } > RAM
      .urodata : {
          *(.urodata)
      } > RAM
