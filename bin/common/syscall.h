@@ -16,5 +16,6 @@
 
 long syscall(long id, long a0, long a1, long a2);
 long sys_write(int fd, char* buf, int len);
+long sys_yield();
 
 #endif /* SYSCALL_H */

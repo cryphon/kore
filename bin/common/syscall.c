@@ -33,5 +33,11 @@ long sys_write(int fd, char* buf, int len)
     return result;
 }
     
+long sys_yield()
+{
+    long result = {0};
+    result = syscall(SYS_YIELD, 0, 0, 0);
+    return result;
+}
 
 /* --- Private Functions --------------------------------------------------- */
