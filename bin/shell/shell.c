@@ -19,6 +19,7 @@
 int main(void)
 {
     int result = sys_write(STDOUT, "Hello world\n", 11);
+
     return 0;
 }
 
