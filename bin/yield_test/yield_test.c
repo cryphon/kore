@@ -15,8 +15,7 @@
 /* --- Private Function Prototypes ----------------------------------------- */
 
 /* --- Public Functions ---------------------------------------------------- */
-// TODO: rename main_yield back to main after independent links
-int main_yield(void)
+int main(void)
 {
     int result = sys_write(STDOUT, "Hello from yield\n", 16);
     return 0;

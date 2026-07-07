@@ -1,6 +1,8 @@
 *.o
 *.d
 *.elf
+*.bin
+*.txt
 compile_commands.json
 kernel.map
 linker.ld
