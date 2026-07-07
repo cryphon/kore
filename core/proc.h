@@ -22,6 +22,6 @@ typedef struct
 
 
 /* --- Public Function Prototypes ------------------------------------------ */
-void proc_init(uint32_t pid, void* stack_ptr);
+void proc_init(uint32_t pid, void* stack_ptr, void* entry_ptr);
 
 #endif /* PROC_H */

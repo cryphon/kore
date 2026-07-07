@@ -18,18 +18,13 @@ extern Proc* tasks[];
 /* kernel/kernel.c */
 
 void kernel_main(void) {
-
-    // crt0.s is no longer part of kernels own link now. only _start is actually inside 
-    // kernel.elf, silently resolve to boot.s _start until migration of kernel.c is resolved
-    //extern char _start[];  /* U-mode code starts here */
-
+    int pid = {0};
     // TODO: no bounds checking yet on pid in proc_init
-    proc_init(0, (void*)__process_stack_pool_start + PROCESS_STACK_SIZE);
+    proc_init(pid, (void*)__process_stack_pool_start + PROCESS_STACK_SIZE, (void*)0x80100000);
     log_info("Hello from kernel\n"); 
 
-    proc_init(1, (void*)__process_stack_pool_start + (2 * PROCESS_STACK_SIZE));
+    proc_init(++pid, (void*)__process_stack_pool_start + (2 * PROCESS_STACK_SIZE), (void*)0x80101000);
     /* Jump to U-mode */
-    //switch_to_umode((uint32_t)_start, tasks[0]);
-    
+    switch_to_umode((uint32_t)tasks[0]->entry_ptr, tasks[0]);    
     while(1) { }
 }
