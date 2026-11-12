@@ -49,11 +49,11 @@ SECTIONS {
     . += 0x4000;
     __stack_top = .;
 
-    /* Process kernel stack pool, sized from shared consts instead of
+    /* Process user stack pool, sized from shared consts instead of
      * a single hardcoded 0x1000 */
-     __process_stack_pool_start = .;
-     . += (PROCESS_STACK_SIZE * MAX_PROCESSES);
-     __process_stack_pool_end = .;
+     __user_stack_pool_start = .;
+     . += (USER_STACK_SIZE * MAX_PROCESSES);
+     __user_stack_pool_end = .;
 
      /* Align to page boundary before U-Mode code */
      . = ALIGN(0x1000);

@@ -10,7 +10,7 @@
 #include "mem_layout.h"
 
 /* --- Public Functions ---------------------------------------------------- */
-extern char __process_stack_pool_start[];
+extern char __user_stack_pool_start[];
 extern void switch_to_umode(uint32_t entry, void* task);
 extern Proc* tasks[];
 
@@ -20,10 +20,10 @@ extern Proc* tasks[];
 void kernel_main(void) {
     int pid = {0};
     // TODO: no bounds checking yet on pid in proc_init
-    proc_init(pid, (void*)__process_stack_pool_start + PROCESS_STACK_SIZE, (void*)0x80100000);
+    proc_init(pid, (void*)__user_stack_pool_start + USER_STACK_SIZE, (void*)0x80100000);
     log_info("Hello from kernel\n"); 
 
-    proc_init(++pid, (void*)__process_stack_pool_start + (2 * PROCESS_STACK_SIZE), (void*)0x80101000);
+    proc_init(++pid, (void*)__user_stack_pool_start + (2 * USER_STACK_SIZE), (void*)0x80101000);
     /* Jump to U-mode */
     // switch_to_umode((uint32_t)tasks[0]->entry_ptr, tasks[0]);    
     switch_to_umode((uint32_t)tasks[1]->entry_ptr, tasks[1]);    

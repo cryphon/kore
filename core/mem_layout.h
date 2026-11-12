@@ -9,7 +9,7 @@
 /* --- Includes ------------------------------------------------------------ */
 
 /* --- Macros / Constants -------------------------------------------------- */
-#define PROCESS_STACK_SIZE  0x1000
+#define USER_STACK_SIZE  0x1000
 #define MAX_PROCESSES       4
 
 // Slot size is independed from process stack size, they are currently
