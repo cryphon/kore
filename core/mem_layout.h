@@ -9,6 +9,7 @@
 /* --- Includes ------------------------------------------------------------ */
 
 /* --- Macros / Constants -------------------------------------------------- */
+#define KERNEL_STACK_SIZE 0x1000
 #define USER_STACK_SIZE  0x1000
 #define MAX_PROCESSES       4
 

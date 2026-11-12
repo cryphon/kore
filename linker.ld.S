@@ -44,20 +44,66 @@ SECTIONS {
 
     . = ALIGN(16);
 
-    /* reserve 16 KiB for kernel stack */
+    /* Ensure stack sizes are multiples of 16 bytes */
+    ASSERT((KERNEL_STACK_SIZE & 0xF) == 0, "KERNEL_STACK_SIZE must be 16-byte aligned")
+    ASSERT((USER_STACK_SIZE & 0xF) == 0, "USER_STACK_SIZE must be 16-byte aligned")
+
+    /* reserve 16 KiB for bool/idle kernel stack */
+    . = ALIGN(0x1000);
     __stack_bottom = .;
     . += 0x4000;
     __stack_top = .;
 
-    /* Process user stack pool, sized from shared consts instead of
-     * a single hardcoded 0x1000 */
-     __user_stack_pool_start = .;
-     . += (USER_STACK_SIZE * MAX_PROCESSES);
-     __user_stack_pool_end = .;
+    /* Guard page between boot stack and user stack pool */
+    __guard_boot_to_user = .;
+    . += 0x1000;
 
+    /* Process user stack pool */
+    . = ALIGN(0x1000);
+    __user_stack_pool_start = .;
+    . += (USER_STACK_SIZE * MAX_PROCESSES);
+    __user_stack_pool_end = .;
+
+
+    /* Guard page between user stack pool and kernel stack pool */
+    . = ALIGN(0x1000);
+    __guard_user_to_kernel = .;
+    . += 0x1000;
+
+    /* Process kernel stack pool */
+    . = ALIGN(0x1000);
+    __kernel_stack_pool_start = .;
+    . += (KERNEL_STACK_SIZE * MAX_PROCESSES);
+    __kernel_stack_pool_end = .;
+    
+    /* Guard page before U-Mode */
+    . = ALIGN(0x1000);
+    __guard_kernel_to_umode = .;
+    . += 0x1000;
+     
      /* Align to page boundary before U-Mode code */
      . = ALIGN(0x1000);
      __umode_start = .;
+
+     /* --- Linker Assertions --- */
+     /* 1. Verify order and non-overlapping layout */
+     ASSERT(__stack_top <= __guard_boot_to_user, "Boot stack overlaps guard")
+     ASSERT(__user_stack_pool_start >= __guard_boot_to_user + 0x1000, "User pool missing guard below")
+     ASSERT(__user_stack_pool_end <= __guard_user_to_kernel, "User pool overlaps middle guard")
+     ASSERT(__kernel_stack_pool_start >= __guard_user_to_kernel + 0x1000, "Kernel pool missing guard below")
+     ASSERT(__kernel_stack_pool_end <= __guard_kernel_to_umode, "Kernel pool overlaps top guard")
+     ASSERT(__umode_start >= __guard_kernel_to_umode + 0x1000, "U-Mode code missing guard below")
+
+     /* 2. Verify 16-byte alignment of pool tops (so every slice top is 16-byte aligned) */
+     ASSERT((__stack_top & 0xF) == 0, "__stack_top is not 16-byte aligned")
+     ASSERT((__user_stack_pool_end & 0xF) == 0, "__user_stack_pool_end is not 16-byte aligned")
+     ASSERT((__kernel_stack_pool_end & 0xF) == 0, "__kernel_stack_pool_end is not 16-byte aligned")
+
+     /* 3. Verify page alignment for PTE unmapping of guard pages */
+     ASSERT((__guard_boot_to_user & 0xFFF) == 0, "Boot guard is not page-aligned")
+     ASSERT((__guard_user_to_kernel & 0xFFF) == 0, "Middle guard is not page-aligned")
+     ASSERT((__guard_kernel_to_umode & 0xFFF) == 0, "Top guard is not page-aligned")
+
 
      /* U-Mode code. Scoped to crt0.o and bin/*.o only. */
      .utext : {
@@ -80,6 +126,4 @@ SECTIONS {
      } > RAM
      __umode_end = .;
 
-     . = ALIGN(0x1000);
-     __user_slot_base = .;
 }
