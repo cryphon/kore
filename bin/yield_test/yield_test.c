@@ -20,6 +20,6 @@ int main(void)
     int result = sys_write(STDOUT, "Let's YIELD\n", 16);
     sys_yield();
     result = sys_write(STDOUT, "Back from YIELD\n", 16);
-    return 0;
+    return result;
 }
 /* --- Private Functions --------------------------------------------------- */

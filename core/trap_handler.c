@@ -45,7 +45,6 @@ static void handle_ecall(TrapFrame* frame)
             break;
         case SYS_WRITE:
             char* buf = (char*)frame->x11;
-            uint32_t len = frame->x12;
             uart_puts(buf);
             log_debug("Trap: SYS_WRITE, code=%d\n", arg0);
             break;

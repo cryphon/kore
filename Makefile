@@ -22,6 +22,9 @@ LDFLAGS = -m elf32lriscv -T $(LDSCRIPT) -Map=kernel.map
 # break the build. Pulled back in near the bottom via -include
 CFLAGS += -MMD -MP
 
+# Add compile warning flags
+CFLAGS += -Wall -Wextra
+
 # Add loglevel for the kernel
 LOG_LEVEL ?= 3
 CFLAGS += -DLOG_LEVEL=$(LOG_LEVEL)
