@@ -44,10 +44,35 @@ static void handle_ecall(TrapFrame* frame)
             kernel_halt();
             break;
         case SYS_WRITE:
+        {
+            int fd = (int)frame->x10;
             char* buf = (char*)frame->x11;
-            uart_puts(buf);
+            uint32_t len = (uint32_t)frame->x12;
+
+            // 1. Validate fd
+            if(fd != 1 && fd != 2)
+            {
+                frame->x10 = -1; // EBADF (Bad file descriptor)
+                break;
+            }
+            // 2. Validate ptr
+            if(buf == NULL)
+            {
+                frame->x10 = -1; // EFAULT (bad addr)
+                break;
+            }
+
+            if(len == 0)
+            {
+                frame->x10 = 0;
+                break;
+            }
+
+            int result = (int)uart_write(buf, len);
+            frame->x10 = result;
             log_debug("Trap: SYS_WRITE, code=%d\n", arg0);
             break;
+        }
         case SYS_YIELD:
             // voluntary yield
             frame->x10 = 0;

@@ -17,7 +17,7 @@
 /* --- Public Functions ---------------------------------------------------- */
 int main(void)
 {
-    int result = sys_write(STDOUT, "Let's YIELD\n", 16);
+    int result = sys_write(STDOUT, "Let's YIELD\n", 12);
     sys_yield();
     result = sys_write(STDOUT, "Back from YIELD\n", 16);
     return result;
