@@ -54,6 +54,16 @@ void uart_puts(const char* s)
     }
 }
 
+size_t uart_write(const char* buf, size_t len)
+{ 
+    for(size_t i = 0; i < len; i++)
+    {
+        uart_putc(buf[i]);
+    }
+
+    return len;
+}
+
 void uart_printf(const char* fmt, ...) 
 {
     va_list args;
