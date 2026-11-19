@@ -162,3 +162,7 @@ Useful commands:
 This project exists to answer a question I kept running into while studying computer science: *what actually happens between the hardware and the OS?* Between the power-on reset vector, the privilege level transitions, the trap handler saving registers to a stack frame, and a user process calling `exit` — there are thousands of small decisions, each one visible and learnable.
 
 kore is my attempt to learn them all, one GDB session at a time.
+
+
+## AI usage
+I mostly use AI to analyze the codebase and help me find problems. I do not suggest it to generate code as it takes away from the learning experience
