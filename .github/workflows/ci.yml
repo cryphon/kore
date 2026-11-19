@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:            # check every PR (shows up as a status check)
+  push:
+    branches: [master]     # and re-verify master after a merge
+
+jobs:
+  build-and-boot:
+    runs-on: ubuntu-latest
+    # Arch container so the toolchain names match the Makefile (riscv64-elf-*)
+    container: archlinux:latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Install toolchain + QEMU
+        run: |
+          pacman -Syu --noconfirm --needed \
+            make riscv64-elf-gcc riscv64-elf-binutils qemu-system-riscv
+
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Boot in QEMU and check output
+        run: |
+          # The kernel spins forever after the last program, so cap the run.
+          timeout 5 qemu-system-riscv32 -M virt -bios none \
+            -kernel kernel.elf -nographic </dev/null > boot.log 2>&1 || true
+          cat boot.log
+
+          # Lines that must appear for the boot to count as passing.
+          # Update this list as the kernel's behaviour changes.
+          expected=(
+            "Hello from kernel"
+          )
+          for line in "${expected[@]}"; do
+            grep -qF "$line" boot.log || { echo "::error::missing: $line"; exit 1; }
+          done
+        shell: bash
+
+      - name: Upload boot log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boot-log
+          path: boot.log
+          if-no-files-found: ignore
