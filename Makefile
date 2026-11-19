@@ -24,6 +24,7 @@ CFLAGS += -MMD -MP
 
 # Add compile warning flags
 CFLAGS += -Wall -Wextra
+CFLAGS += $(EXTRA_CFLAGS)
 
 # Add loglevel for the kernel
 LOG_LEVEL ?= 3

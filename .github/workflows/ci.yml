@@ -13,19 +13,45 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Install toolchain + QEMU
+      - name: Install toolchain, GDB + QEMU
         run: |
           pacman -Syu --noconfirm --needed \
-            make riscv64-elf-gcc riscv64-elf-binutils qemu-system-riscv
+            make riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-gdb \
+            qemu-system-riscv xxhash
 
       - uses: actions/checkout@v4
 
-      - name: Build
+      # ---- 1. warnings are errors -------------------------------------------
+      - name: Check Makefile has the EXTRA_CFLAGS hook
         run: |
-          make -j"$(nproc)" all
+          if ! make -n -B core/uart.o EXTRA_CFLAGS=-DCI_HOOK_PROBE | grep -q CI_HOOK_PROBE; then
+            echo "::error::Makefile ignores EXTRA_CFLAGS - add 'CFLAGS += \$(EXTRA_CFLAGS)', otherwise -Werror is silently dropped"
+            exit 1
+          fi
+
+      - name: Build (-Werror)
+        id: build
+        run: |
+          make -j"$(nproc)" all EXTRA_CFLAGS=-Werror
           test -f kernel.elf || { echo "::error::kernel.elf was not built"; exit 1; }
 
+      # The checks below all run after a good build, even if an earlier one
+      # failed, so one PR shows every problem at once.
+
+      # ---- 1b. stack budget -------------------------------------------------
+      - name: Stack frame budget
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: bash ci/check_stack.sh
+
+      # ---- 3. user images fit their slots -----------------------------------
+      - name: User program slot sizes
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: bash ci/check_slots.sh
+
+      # ---- boot smoke test --------------------------------------------------
       - name: Boot in QEMU and check output
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        shell: bash
         run: |
           # The kernel spins forever after the last program, so cap the run.
           timeout 5 qemu-system-riscv32 -M virt -bios none \
@@ -42,12 +68,20 @@ jobs:
           for line in "${expected[@]}"; do
             grep -qF "$line" boot.log || { echo "::error::missing: $line"; exit 1; }
           done
-        shell: bash
 
-      - name: Upload boot log
+      # ---- 4. scripted GDB tests --------------------------------------------
+      - name: GDB tests
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        env:
+          LOG_DIR: test-logs
+        run: bash tests/gdb/run.sh
+
+      - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: boot-log
-          path: boot.log
+          name: logs
+          path: |
+            boot.log
+            test-logs/
           if-no-files-found: ignore

@@ -115,6 +115,7 @@ static void handle_exception(TrapFrame* frame, uint32_t cause)
 
 static void handle_interrupt(TrapFrame* frame, uint32_t cause)
 {
+    (void)frame; /* TODO: needed once timer preemtion saves context */
     switch (cause)
     {
         case INT_SUPERVISOR_TIMER:
