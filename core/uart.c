@@ -20,23 +20,49 @@
 /* --- Private Variables --------------------------------------------------- */
 
 /* --- Private Function Prototypes ----------------------------------------- */
-static int kdiv(int a, int b)
+static uint32_t udivmod(uint32_t n, uint32_t d, uint32_t* rem)
 {
-    int neg = (a < 0) ^ (b < 0);
-    unsigned ua = a < 0 ? -a : a;
-    unsigned ub = b < 0 ? -b : b;
-    unsigned q = 0;
-    while (ua >= ub) { ua -= ub; q++; }
-    return neg ? -(int)q : (int)q;
+    if(d == 0)
+    {
+        if(rem) { *rem = 0; }
+        return 0;
+    }
+
+    uint32_t quot = 0;
+    uint32_t r = 0;
+
+    // iterate over the 32 bits
+    for(int i = 31; i >= 0; i--)
+    {
+        // Shift remainder left by one and brind down next bit of numerator
+        r = (r << 1) | ((n >> i) &1U);
+
+        if(r >= d)
+        {
+            r -= d;
+            quot |= (1U << i);
+        }
+    }
+    
+    if(rem)
+    {
+        *rem = r;
+    }
+    return quot;
 }
 
-static int kmod(int a, int b)
+static inline uint32_t kdiv(uint32_t n, uint32_t d)
 {
-    int result = a < 0 ? -a : a;
-    int ub     = b < 0 ? -b : b;
-    while (result >= ub) result -= ub;
-    return a < 0 ? -result : result;
+    return udivmod(n, d, 0); // passed 0 bc remaineder not needed
 }
+
+static inline uint32_t kmod(uint32_t n, uint32_t d)
+{
+    uint32_t rem;
+    udivmod(n, d, &rem);
+    return rem;
+}
+
 
 /* --- Public Functions ---------------------------------------------------- */
 
@@ -81,17 +107,21 @@ void uart_printf(const char* fmt, ...)
             case 'd': {
                 int val = va_arg(args, int);
                 if (val < 0) { uart_putc('-'); val = -val; }
+                uint32_t mag = (uint32_t)val;
+
+                if(val < 0) { uart_putc('-'); mag = 0u - mag; }; /* usnigned negate: no UIB, INT_MIN */
                 char buf[12];
                 int i = 0;
-                do { buf[i++] = '0' + kmod(val, 10); val = kdiv(val, 10); } while (val);
+                do { buf[i++] = (char)('0' + kmod(mag, 10)); mag = kdiv(mag, 10); } while (mag);
                 for (int j = i - 1; j >= 0; j--) uart_putc(buf[j]);
                 break;
+
             }
             case 'u': {
                 unsigned val = va_arg(args, unsigned);
                 char buf[12];
                 int i = 0;
-                do { buf[i++] = '0' + (int)kmod((int)val, 10); val = (unsigned)kdiv((int)val, 10); } while (val);
+                do { buf[i++] = (char)('0' + kmod(val, 10)); val = kdiv(val, 10); } while (val);
                 for (int j = i - 1; j >= 0; j--) uart_putc(buf[j]);
                 break;
             }
