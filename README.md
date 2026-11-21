@@ -27,13 +27,13 @@ The project is structured as a staged learning roadmap. Every feature is verifie
 
 ```
 ┌─────────────────────────────────────────┐
-│             U-mode (ring 3)             │
+│             U-mode (ring 1)             │
 │   user processes  │  shell (bin/shell)  │
 ├─────────────────────────────────────────┤
-│             S-mode (ring 1)             │
+│             S-mode (ring 2)             │
 │  kernel_main  │  trap handler  │  sched │
 ├─────────────────────────────────────────┤
-│             M-mode (ring 0)             │
+│             M-mode (ring 3)             │
 │       boot.s  │  trap delegation        │
 └─────────────────────────────────────────┘
          QEMU virt board — RV32I
@@ -91,27 +91,12 @@ The `TrapFrame` struct (140 bytes) is allocated on the kernel trap stack at ever
 
 ---
 
-## Implemented Features
-
-- [x] **UART driver** — NS16550A, no firmware dependency
-- [x] **M-mode boot** — stack setup, PMP, CSR init
-- [x] **M → S-mode transition** — via `mret` with `mstatus.MPP = 01`
-- [x] **Trap delegation** — `medeleg`/`mideleg = 0xffff` routes all traps to S-mode
-- [x] **M-mode trap handler** — `mtrap_entry` / `mtrap_handler` with `mcause` dispatch
-- [x] **S-mode trap handler** — `strap_entry` / `strap_handler` with full `TrapFrame` save/restore
-- [x] **S → U-mode transition** — via `sret` with `sstatus.SPP = 0`
-- [x] **U-mode ecall handling** — `scause = 8` caught, `sepc` advanced, `SYS_EXIT` stub
-- [x] **Process struct** — PID, stack pointer; stack allocated via linker script
-
----
-
 ## Building & Running
 
 **Requirements:**
 
-- `riscv32-unknown-elf-gcc` (bare-metal toolchain)
+- `riscv64-elf-gcc` `riscv64-elf-binutils` `riscv64-elf-gdb` (bare-metal toolchain)
 - `qemu-system-riscv32`
-- `gdb-multiarch`
 
 ```bash
 # Build
